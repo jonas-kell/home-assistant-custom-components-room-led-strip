@@ -1,0 +1,22 @@
+{
+    "spellright.language": [
+        "de",
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext",
+        "python"
+    ],
+    "python.linting.enabled": true,
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "basic",
+    "picowgo.syncFolder": "",
+    "python.analysis.typeshedPaths": [
+        ".vscode/Pico-W-Stub"
+    ],
+    "python.analysis.extraPaths": [
+        ".vscode/Pico-W-Stub/stubs"
+    ]
+}
