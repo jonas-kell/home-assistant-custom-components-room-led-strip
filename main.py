@@ -13,7 +13,7 @@ numpix = 100
 pixels = Neopixel(num_leds= numpix, 
                     state_machine= 0,
                     pin=strip_out_pin_nr, 
-                    mode= "BRG")
+                    mode= "RBG")
 
 yellow = (255, 100, 0)
 orange = (255, 50, 0)
