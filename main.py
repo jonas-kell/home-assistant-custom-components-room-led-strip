@@ -1,32 +1,35 @@
-from neopixel import Neopixel
-from machine import Pin
 from time import sleep
+from led import blink
+from wlan import wlanConnect
+from ledstrip import getLEDStrip
 
-led = Pin("LED", Pin.OUT)
-strip_out_pin_nr = 28
+for i in range(1):
+    blink()
 
-for i in range(2):
-    led.toggle()
-    sleep(0.2)
+ip4 = wlanConnect()
 
-numpix = 100
-pixels = Neopixel(num_leds= numpix, 
-                    state_machine= 0,
-                    pin=strip_out_pin_nr, 
-                    mode= "RBG")
+if ip4 != "":
+    for i in range(2):
+        blink()
+else:
+    for i in range(1):
+        blink()
+
+LED_STRIP = getLEDStrip()
 
 yellow = (255, 100, 0)
 orange = (255, 50, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 red = (255, 0, 0)
+white = (255, 255, 255)
 color0 = red
 
-pixels.brightness(50)
-pixels.fill(orange)
-pixels.set_pixel_line_gradient(3, 13, green, blue)
-pixels.set_pixel_line(14, 16, red)
-pixels.set_pixel(20, (255, 255, 255))
+LED_STRIP.brightness(50)
+LED_STRIP.fill(orange)
+LED_STRIP.set_pixel_line_gradient(3, 13, green, blue)
+LED_STRIP.set_pixel_line(14, 16, red)
+LED_STRIP.set_pixel(20, white)
 
 for i in range(4):
     if color0 == red:
@@ -35,11 +38,10 @@ for i in range(4):
     else:
         color0 = red
         color1 = yellow
-    pixels.set_pixel(0, color0)
-    pixels.set_pixel(1, color1)
-    pixels.show()
+    LED_STRIP.set_pixel(0, color0)
+    LED_STRIP.set_pixel(1, color1)
+    LED_STRIP.show()
     sleep(1)
 
 for i in range(4):
-    led.toggle()
-    sleep(0.2)
+    blink()
