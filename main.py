@@ -2,6 +2,7 @@ from time import sleep
 from led import blink
 from wlan import wlanConnect
 from ledstrip import getLEDStrip
+from server import startServer, parseUrl
 
 sleep(0.5) # wait for the system to be fully up, seems to help
 
@@ -48,3 +49,19 @@ for i in range(4):
 
 for i in range(4):
     blink()
+
+def callback(method, url):
+    url, params = parseUrl(url)
+
+    if method == "POST":
+        if url == "/blink":
+            print(params)
+
+            for i in range(3):
+                blink()
+
+            return "{'status': 'success'} \n"
+    
+    return "{'status': 'forbidden'} \n"
+
+startServer("192.168.3.207", callback)

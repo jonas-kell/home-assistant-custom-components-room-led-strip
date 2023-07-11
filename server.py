@@ -30,8 +30,8 @@ def startServer(ipv4, url_callback):
 
             print(request)
 
-            method = request[0]
-            url = request[1]
+            method = request[0].lstrip("'b")
+            url = request[1].lstrip("'b")
 
             print('METHOD:', method)
             print('URL:', url)
