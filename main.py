@@ -3,10 +3,13 @@ from led import blink
 from wlan import wlanConnect
 from ledstrip import getLEDStrip
 
+sleep(0.5) # wait for the system to be fully up, seems to help
+
 for i in range(1):
     blink()
 
 ip4 = wlanConnect()
+sleep(0.2)
 
 if ip4 != "":
     for i in range(2):

@@ -1,6 +1,7 @@
 import rp2
 import utime as time
 from environment import getEnvValue
+import network
 
 # Config Parameters
 
@@ -8,10 +9,11 @@ wlanSSID = getEnvValue("ssid")
 wlanPW = getEnvValue("password")
 rp2.country("DE")
 
-
 # WLAN-Connection
 def wlanConnect():
-    import network
+
+    print(f"Trying to connect to ssid: {wlanSSID}")
+    print(f"Connecting with password: {wlanPW}")
 
     wlan = network.WLAN(network.STA_IF)
     if not wlan.isconnected():
