@@ -1,5 +1,5 @@
 {
-    "domain": "light",
+    "domain": "room_led_strip",
     "name": "Room Led Strip",
     "version": "0.0.1",
     "documentation": "https://github.com/jonas-kell/home-assistant-custom-components-room-led-strip/readme.md",
