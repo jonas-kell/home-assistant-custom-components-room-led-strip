@@ -1,7 +1,7 @@
 {
     "domain": "room_led_strip",
     "name": "Room Led Strip",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "documentation": "https://github.com/jonas-kell/home-assistant-custom-components-room-led-strip/README.md",
     "requirements": [],
     "dependencies": [],
