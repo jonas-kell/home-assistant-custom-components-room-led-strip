@@ -1,0 +1,14 @@
+{
+    "domain": "light",
+    "name": "Room Led Strip",
+    "version": "0.0.1",
+    "documentation": "https://github.com/jonas-kell/home-assistant-custom-components-room-led-strip/readme.md",
+    "requirements": [],
+    "dependencies": [],
+    "after_dependencies": ["http"],
+    "codeowners": ["@jonas-kell"],
+    "iot_class": "local_polling",
+    "loggers": [],
+    "issue_tracker": "https://github.com/jonas-kell/home-assistant-custom-components-room-led-strip/issues",
+    "integration_type": "device"
+}

@@ -21,11 +21,11 @@ Example `configuration.yaml` entry
 
 ```
 light:
-    - platform: room_led_light
+    - platform: room_led_strip
       devices:
-          my_room_led_light:
+          my_room_led_strip:
               name: My Room LED Strip
-              ip: 192.168.2.XXX
+              ip_address: 192.168.2.XXX
               light_index_from: 0 #optional
               light_index_to: 9999999 #optional
 ```
