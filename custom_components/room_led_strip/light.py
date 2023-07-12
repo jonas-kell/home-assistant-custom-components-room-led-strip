@@ -11,7 +11,7 @@ from homeassistant.components.light import (
     PLATFORM_SCHEMA,
     LightEntity,
 )
-from homeassistant.const import CONF_IP_ADDRESS, CONF_NAME
+from homeassistant.const import CONF_IP_ADDRESS, CONF_NAME, CONF_DEVICES
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -21,13 +21,23 @@ _LOGGER = logging.getLogger(__name__)
 CONF_LIGHT_INDEX_FROM: Final = "light_index_from"
 CONF_LIGHT_INDEX_TO: Final = "light_index_to"
 
+DOMAIN: Final = "room_led_strip"
+
 # Validation of the user's configuration
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Required(CONF_NAME): cv.string,
-        vol.Required(CONF_IP_ADDRESS): cv.string,
-        vol.Optional(CONF_LIGHT_INDEX_FROM, default="0"): cv.positive_int,
-        vol.Optional(CONF_LIGHT_INDEX_TO, default="9999999"): cv.positive_int,
+        vol.Optional(CONF_DEVICES, default={}): vol.Schema(
+            {
+                cv.string: {
+                    vol.Required(CONF_NAME): cv.string,
+                    vol.Required(CONF_IP_ADDRESS): cv.string,
+                    vol.Optional(CONF_LIGHT_INDEX_FROM, default="0"): cv.positive_int,
+                    vol.Optional(
+                        CONF_LIGHT_INDEX_TO, default="9999999"
+                    ): cv.positive_int,
+                }
+            }
+        ),
     }
 )
 
@@ -40,29 +50,41 @@ def setup_platform(
 ) -> None:
     # Assign configuration variables.
     # The configuration check takes care they are present.
-    name = config.get(CONF_NAME)
-    ip_address = config.get(CONF_IP_ADDRESS)
-    light_index_from = config.get(CONF_LIGHT_INDEX_FROM)
-    light_index_to = config.get(CONF_LIGHT_INDEX_TO)
 
-    pico = RaspberryPiPico(ip_address, light_index_from, light_index_to)
+    devices = []
+    for device_id, config in config[CONF_DEVICES].items():
+        name = config.pop(CONF_NAME)
+        ip_address = config.pop(CONF_IP_ADDRESS)
+        light_index_from = config.pop(CONF_LIGHT_INDEX_FROM)
+        light_index_to = config.pop(CONF_LIGHT_INDEX_TO)
 
-    # Verify that passed in configuration works
-    if pico.assert_can_connect():
-        _LOGGER.error("Could not connect to RaspberryPi Pico with custom firmware")
-        return
-    if pico.init_remote_state_track():
-        _LOGGER.error("Could not create LED subsection")
-        return
+        pico = RaspberryPiPico(
+            device_id, name, ip_address, light_index_from, light_index_to
+        )
+
+        # Verify that passed in configuration works
+        if pico.assert_can_connect():
+            _LOGGER.error("Could not connect to RaspberryPi Pico with custom firmware")
+            continue
+        if pico.init_remote_state_track():
+            _LOGGER.error("Could not create LED subsection")
+            continue
+
+        # append to devices array
+        devices.append(pico)
 
     # Add devices
-    add_entities([RoomLEDStrip(name, pico)])
+    add_entities(RoomLEDStrip(pico) for pico in devices)
 
 
 class RaspberryPiPico:
     """Controls Connection to a RaspberriPi Pico with custom firmware"""
 
-    def __init__(self, ip_address, light_index_from, light_index_to) -> None:
+    def __init__(
+        self, device_id, name, ip_address, light_index_from, light_index_to
+    ) -> None:
+        self._device_id = device_id
+        self._name = name
         self._ip_address = ip_address
         self._light_index_from = light_index_from
         self._light_index_to = light_index_to
@@ -86,10 +108,11 @@ class RaspberryPiPico:
 class RoomLEDStrip(LightEntity):
     """Control Representation of a LED Strip"""
 
-    def __init__(self, name: str, pico: RaspberryPiPico) -> None:
-        """Initialize a Light"""
+    def __init__(self, pico: RaspberryPiPico) -> None:
+        """Initialize a Lightable Pico Subsection"""
         self._pico = pico
-        self._name = name
+        self._device_id = pico._device_id
+        self._name = pico._name
         self._state = None
         self._brightness = None
         self._rgb_color = None
