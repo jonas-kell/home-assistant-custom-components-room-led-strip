@@ -64,4 +64,4 @@ def callback(method, url):
     
     return "{'status': 'forbidden'} \n"
 
-startServer("192.168.3.207", callback)
+startServer(ip4, callback)
