@@ -10,6 +10,7 @@ from homeassistant.components.light import (
     ATTR_RGB_COLOR,
     PLATFORM_SCHEMA,
     LightEntity,
+    COLOR_MODE_RGB,
 )
 from homeassistant.const import CONF_IP_ADDRESS, CONF_NAME, CONF_DEVICES
 from homeassistant.core import HomeAssistant
@@ -121,6 +122,9 @@ class RaspberryPiPico:
 
 class RoomLEDStrip(LightEntity):
     """Control Representation of a LED Strip"""
+
+    _attr_color_mode = COLOR_MODE_RGB
+    _attr_supported_color_modes = {COLOR_MODE_RGB}
 
     def __init__(self, pico: RaspberryPiPico) -> None:
         """Initialize a Lightable Pico Subsection"""
