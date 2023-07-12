@@ -74,8 +74,12 @@ def setup_platform(
             )
             continue
 
+        _LOGGER.info(f"appended device")
+
         # append to devices array
         devices.append(pico)
+
+    _LOGGER.info(f"#devices {len(devices)}")
 
     # Add devices
     add_entities(RoomLEDStrip(pico) for pico in devices)
