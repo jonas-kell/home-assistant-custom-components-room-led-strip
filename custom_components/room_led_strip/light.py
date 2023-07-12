@@ -63,11 +63,15 @@ def setup_platform(
         )
 
         # Verify that passed in configuration works
-        if pico.assert_can_connect():
-            _LOGGER.error("Could not connect to RaspberryPi Pico with custom firmware")
+        if not pico.assert_can_connect():
+            _LOGGER.error(
+                f"Could not connect to RaspberryPi Pico with custom firmware (ip: {ip_address})"
+            )
             continue
-        if pico.init_remote_state_track():
-            _LOGGER.error("Could not create LED subsection")
+        if not pico.init_remote_state_track():
+            _LOGGER.error(
+                f"Could not create LED subsection (ip: {ip_address}, light_index_from: {light_index_from}, light_index_to: {light_index_to})"
+            )
             continue
 
         # append to devices array
@@ -90,9 +94,15 @@ class RaspberryPiPico:
         self._light_index_to = light_index_to
 
     def assert_can_connect(self) -> bool:
+        _LOGGER.info(
+            f"Could connect to RaspberryPi Pico with custom firmware on ip {self._ip_address}"
+        )
         return True
 
     def init_remote_state_track(self) -> bool:
+        _LOGGER.info(
+            f"Created LED subsection on ip {self._ip_address} from index {self._light_index_from} to {self._light_index_to}"
+        )
         return True
 
     def query_state(self) -> dict[str, Any]:
