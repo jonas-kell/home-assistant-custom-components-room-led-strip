@@ -54,21 +54,18 @@ else:
 def callback(method, url):
     url, params = parseUrl(url)
 
+    blink()  # show that communication happened
+
     if method == "GET":
         if url == "/check_connect":
             print(params)
-            return "{'status': 'success'} \n"
+            return '{"status": "success"} \n'
 
     if method == "POST":
-        if url == "/blink":
-            print(params)
+        if url == "/placeholder":
+            return '{"status": "success"} \n'
 
-            for i in range(3):
-                blink()
-
-            return "{'status': 'success'} \n"
-
-    return "{'status': 'forbidden'} \n"
+    return '{"status": "forbidden"} \n'
 
 
 startServer(ip4, callback)
