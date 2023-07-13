@@ -17,6 +17,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
+import requests
+
 _LOGGER = logging.getLogger(__name__)
 
 CONF_LIGHT_INDEX_FROM: Final = "light_index_from"
@@ -99,10 +101,20 @@ class RaspberryPiPico:
         self._light_index_to = light_index_to
 
     def assert_can_connect(self) -> bool:
+        r = requests.get(
+            url=f"{self._ip_address}/check_connect", params={"asd": "asdasd"}
+        )
+
+        if r.status_code == 200:
+            response = r.json()
+
+            _LOGGER.info(f"Response from PI: {str(response)}")
+            return True
+
         _LOGGER.info(
             f"Could connect to RaspberryPi Pico with custom firmware on ip {self._ip_address}"
         )
-        return True
+        return False
 
     def init_remote_state_track(self) -> bool:
         _LOGGER.info(
