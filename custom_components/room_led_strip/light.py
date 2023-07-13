@@ -102,7 +102,7 @@ class RaspberryPiPico:
 
     def assert_can_connect(self) -> bool:
         r = requests.get(
-            url=f"{self._ip_address}/check_connect", params={"asd": "asdasd"}
+            url=f"http://{self._ip_address}/check_connect", params={"asd": "asdasd"}
         )
 
         if r.status_code == 200:
