@@ -33,4 +33,4 @@ light:
 -   `name`: Name duh
 -   `ip`: The IP-Address that is used to talk to the pico (get it from your router, ideally set it to be static)
 -   `light_index_from`: If you want to separate one strip into multiple individual lights, choose from what index to start (inclusive). Defaults to 0.
--   `light_index_to`: If you want to separate one strip into multiple individual lights, choose at what index to end (non-inclusive). Defaults to 9999999, the pico software takes the maximum number of available lights aof the strip into account, but this needs to be configured in the `pi_config.env`.
+-   `light_index_to`: If you want to separate one strip into multiple individual lights, choose at what index to end (inclusive). Defaults to 9999999, the pico software takes the maximum number of available lights aof the strip into account, but this needs to be configured in the `pi_config.env`.
