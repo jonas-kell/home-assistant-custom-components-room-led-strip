@@ -99,7 +99,6 @@ class RaspberryPiPico:
         self._ip_address = ip_address
         self._light_index_from = light_index_from
         self._light_index_to = light_index_to
-        self._id = "if0it0"
 
     def assert_can_connect(self) -> bool:
         ok, response = self.request("check_connect", {}, "get")
@@ -122,13 +121,16 @@ class RaspberryPiPico:
             return False
 
         try:
-            self._id = response["id"]
+            response_id = response["id"]
+            if response_id != self.getID():
+                _LOGGER.error(f"ID-Mismatch: {response_id} - {self.getID()}")
+                return False
         except:
             _LOGGER.error(f"No id to be set was returned: {response}")
             return False
 
         _LOGGER.info(
-            f"Created LED subsection on ip {self._ip_address} from index {self._light_index_from} to {self._light_index_to}. Now has id {self._id}"
+            f"Created LED subsection on ip {self._ip_address} from index {self._light_index_from} to {self._light_index_to}. Now has id {self.getID()}"
         )
         return True
 
@@ -206,12 +208,12 @@ class RaspberryPiPico:
             if method == "get":
                 r = requests.get(
                     url=f"http://{self._ip_address}/{route}",
-                    params=(params | {"id": self._id}),
+                    params=(params | {"id": self.getID()}),
                 )
             elif method == "post":
                 r = requests.post(
                     url=f"http://{self._ip_address}/{route}",
-                    params=(params | {"id": self._id}),
+                    params=(params | {"id": self.getID()}),
                 )
             else:
                 raise ValueError
@@ -242,6 +244,9 @@ class RaspberryPiPico:
 
         _LOGGER.info(f"Response from PI {self._ip_address}: {str(response)}")
         return True, response
+
+    def getID(self):
+        return f"if{self._light_index_from}it{self._light_index_to}"
 
 
 class RoomLEDStrip(LightEntity):
