@@ -43,7 +43,7 @@ def callback(method, url):
             state = get_state_and_assert_key_initialized(use_id)
             print(state)
 
-            return f'{{"status": "success", "state": {state["state"]}, "brightness": {state["brightness"]}, "red": {state["red"]}, "green": {state["green"]}, "blue": {state["blue"]}}} \n'
+            return f'{{"status": "success", "state": {str(state["state"]).lower()}, "brightness": {state["brightness"]}, "red": {state["red"]}, "green": {state["green"]}, "blue": {state["blue"]}}} \n'
 
     if method == "POST":
         if url == "/init":
