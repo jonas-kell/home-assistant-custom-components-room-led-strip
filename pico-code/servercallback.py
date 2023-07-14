@@ -171,9 +171,11 @@ def save_state():
 def updateLEDSTRIP():
     for key in states:
         state = states[key]
+        print(f"Updating Strip {key}")
 
         if state["state"]:
             LED_STRIP.brightness(state["brightness"])
             LED_STRIP.set_pixel_line(min(LED_MAX_PIXEL, state["index_from"]), min(LED_MAX_PIXEL, state["index_to"]), (state["red"], state["green"], state["blue"])) # on
         else:
+            LED_STRIP.brightness(state["brightness"])
             LED_STRIP.set_pixel_line(min(LED_MAX_PIXEL, state["index_from"]), min(LED_MAX_PIXEL, state["index_to"]), (0,0,0)) # off
