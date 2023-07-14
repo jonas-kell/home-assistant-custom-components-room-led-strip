@@ -92,7 +92,7 @@ def callback(method, url):
             state["green"] = green
             state["blue"] = blue
 
-            move_key_to_first(use_key_order)
+            move_key_to_first(use_id)
             save_state()
 
             updateLEDSTRIP() # write to strip
@@ -111,7 +111,7 @@ def callback(method, url):
             state = get_state_and_assert_key_initialized(use_id)
             state["state"] = False
 
-            move_key_to_first(use_key_order)
+            move_key_to_first(use_id)
             save_state()
 
             updateLEDSTRIP() # write to strip
@@ -163,7 +163,6 @@ def get_state_and_assert_key_initialized(get_id):
                 "green": 0,
                 "blue": 0,
             }
-            
 
     return states[get_id]
 
