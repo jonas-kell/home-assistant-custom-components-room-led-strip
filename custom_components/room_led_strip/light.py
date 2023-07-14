@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 import voluptuous as vol
-from typing import Final
+from typing import Final, Any
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
@@ -99,37 +99,149 @@ class RaspberryPiPico:
         self._ip_address = ip_address
         self._light_index_from = light_index_from
         self._light_index_to = light_index_to
+        self._id = 0
 
     def assert_can_connect(self) -> bool:
-        r = requests.get(
-            url=f"http://{self._ip_address}/check_connect", params={"asd": "asdasd"}
-        )
+        ok, response = self.request("check_connect", {}, "get")
 
-        if r.status_code == 200:
-            response = r.json()
-
-            _LOGGER.info(f"Response from PI: {str(response)}")
+        if ok:
+            _LOGGER.info(f"Asserted that Pico can connect")
             return True
 
-        _LOGGER.info(
-            f"Could connect to RaspberryPi Pico with custom firmware on ip {self._ip_address}"
-        )
         return False
 
     def init_remote_state_track(self) -> bool:
+        ok, response = self.request(
+            "init",
+            {"lif": self._light_index_from, "lit": self._light_index_to},
+            "post",
+        )
+
+        if not ok:
+            _LOGGER.error(f"No remote state track could be set up")
+            return False
+
+        try:
+            self._id = response["id"]
+        except:
+            _LOGGER.error(f"No id to be set was returned: {response}")
+            return False
+
         _LOGGER.info(
-            f"Created LED subsection on ip {self._ip_address} from index {self._light_index_from} to {self._light_index_to}"
+            f"Created LED subsection on ip {self._ip_address} from index {self._light_index_from} to {self._light_index_to}. Now has id {self._id}"
         )
         return True
 
     def query_state(self) -> dict[str, Any]:
-        return {"state": False, "brightness": 0, "rgb_color": [0, 0, 0]}
+        state = False
+        brightness = 0
+        red = 0
+        green = 0
+        blue = 0
 
-    def turn_on(self, brightness, rgb_color: tuple[int, int, int]):
-        pass
+        ok, response = self.request(
+            "query",
+            {},
+            "get",
+        )
+
+        parse_error = False
+        if ok:
+            try:
+                state = bool(response["state"])
+                brightness = int(response["brightness"])
+                red = int(response["red"])
+                green = int(response["green"])
+                blue = int(response["blue"])
+            except:
+                parse_error = True
+                _LOGGER.error(
+                    f"Response malformatted, could not parse all required information from it: {response}"
+                )
+
+        ob = {
+            "state": state,
+            "brightness": brightness,
+            "rgb_color": (red, green, blue),
+        }
+
+        if ok and not parse_error:
+            _LOGGER.info(f"State Queried: {str(ob)}")
+
+        return ob
+
+    def turn_on(self, brightness: int, rgb_color: tuple[int, int, int]):
+        ok, response = self.request(
+            "on",
+            {
+                "brightness": brightness,
+                "red": rgb_color[0],
+                "green": rgb_color[1],
+                "blue": rgb_color[2],
+            },
+            "post",
+        )
+
+        if ok:
+            _LOGGER.info(f"Light turned on/updated")
+            return True
+
+        return False
 
     def turn_off(self):
-        pass
+        ok, response = self.request(
+            "off",
+            {},
+            "post",
+        )
+
+        if ok:
+            _LOGGER.info(f"Light turned on/updated")
+            return True
+
+        return False
+
+    def request(self, route, params={}, method="get"):
+        try:
+            if method == "get":
+                r = requests.get(
+                    url=f"http://{self._ip_address}/{route}",
+                    params=(params | {"id": self._id}),
+                )
+            elif method == "post":
+                r = requests.post(
+                    url=f"http://{self._ip_address}/{route}",
+                    params=(params | {"id": self._id}),
+                )
+            else:
+                raise ValueError
+        except Exception as ex:
+            _LOGGER.error(
+                f"Could not connect to RaspberryPi Pico with custom firmware on ip {self._ip_address} due to exception {type(ex).__name__}, {str(ex.args)}"
+            )
+            return False, {}
+
+        if r.status_code != 200:
+            _LOGGER.error(
+                f"Could connect Pico to with custom firmware but returned status code {r.status_code}"
+            )
+            return False, {}
+
+        try:
+            response = r.json()
+            status = response["status"]
+        except:
+            _LOGGER.error(
+                f"Pico response no valid json or has the 'status' field not set: {r.text}"
+            )
+            return False, {}
+
+        if status != "success":
+            _LOGGER.error(f"Pico returned internal status: {str(response)}")
+            return False, {}
+
+        _LOGGER.info(f"Response from PI {self._ip_address}: {str(response)}")
+        return True, response
 
 
 class RoomLEDStrip(LightEntity):
