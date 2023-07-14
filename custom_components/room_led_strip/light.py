@@ -248,7 +248,7 @@ class RoomLEDStrip(LightEntity):
     """Control Representation of a LED Strip"""
 
     _attr_color_mode = ColorMode.RGB
-    _attr_supported_color_modes = {ColorMode.RGB, ColorMode.BRIGHTNESS, ColorMode.ONOFF}
+    _attr_supported_color_modes = {ColorMode.RGB}
 
     def __init__(self, pico: RaspberryPiPico) -> None:
         """Initialize a Lightable Pico Subsection"""
