@@ -33,7 +33,7 @@ def callback(method, url):
             return '{"status": "success"} \n'
         if url == "/query":
             try:
-                use_id = int(params["id"])
+                use_id = str(params["id"])
             except Exception as ex:
                 print(
                     f"ERROR: Parsing arguments in /init due to exception {type(ex).__name__}, {str(ex.args)}"
@@ -56,18 +56,13 @@ def callback(method, url):
                 )
                 return '{"status": "error"}'
 
-            new_id = len(states) + 1
+            new_id = f"if{index_from}it{index_to}"
 
             # init new
-            states[int(new_id)] = {
-                "index_from": index_from,
-                "index_to": index_to,
-                "state": False,
-                "brightness": 0,
-                "red": 0,
-                "green": 0,
-                "blue": 0,
-            }
+            state = get_state_and_assert_key_initialized(new_id)
+            state["index_from"] = index_from # overwrite defaults, should not change anything on loading
+            state["index_to"] = index_to # overwrite defaults, should not change anything on loading
+
             # save to disk
             save_state()
             print(states)
@@ -77,7 +72,7 @@ def callback(method, url):
             return f'{{"status": "success", "id": {new_id}}} \n'
         if url == "/on":
             try:
-                use_id = int(params["id"])
+                use_id = str(params["id"])
                 brightness = int(params["brightness"])
                 red = int(params["red"])
                 green = int(params["green"])
@@ -102,7 +97,7 @@ def callback(method, url):
             return '{"status": "success"} \n'
         if url == "/off":
             try:
-                use_id = int(params["id"])
+                use_id = str(params["id"])
             except Exception as ex:
                 print(
                     f"ERROR: Parsing arguments in /off due to exception {type(ex).__name__}, {str(ex.args)}"
@@ -124,7 +119,7 @@ def callback(method, url):
 def get_state_and_assert_key_initialized(get_id):
     global states
 
-    get_id = int(get_id)
+    get_id = str(get_id)
 
     try:
         state = states[get_id]
@@ -136,7 +131,7 @@ def get_state_and_assert_key_initialized(get_id):
                 data = json.load(f)
                 print("Loaded Data", data)
 
-                loaded_state = data[str(get_id)] # These functions always cast KEYS to str, bit sad, but hopefully consistent
+                loaded_state = data[str(get_id)] # These functions always cast KEYS to str, hopefully consistent
                 print("Loaded State ", loaded_state)
 
                 states[get_id] = {}
@@ -153,8 +148,8 @@ def get_state_and_assert_key_initialized(get_id):
                 print(f"Loading exception occured {type(ex).__name__}, {str(ex.args)}") # show exception without crashing
 
                 states[get_id] = {  # DEFAULT, should not be needed
-                    "index_from": 0,  # bad because not known
-                    "index_to": 10,  # bad because not known
+                    "index_from": 0,  # bad because not known, should be overwritten
+                    "index_to": 10,  # bad because not known, should be overwritten
                     "state": False,
                     "brightness": 0,
                     "red": 0,

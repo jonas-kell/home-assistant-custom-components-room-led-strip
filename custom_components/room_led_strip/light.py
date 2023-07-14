@@ -99,7 +99,7 @@ class RaspberryPiPico:
         self._ip_address = ip_address
         self._light_index_from = light_index_from
         self._light_index_to = light_index_to
-        self._id = 0
+        self._id = "if0it0"
 
     def assert_can_connect(self) -> bool:
         ok, response = self.request("check_connect", {}, "get")
