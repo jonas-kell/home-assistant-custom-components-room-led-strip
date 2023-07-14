@@ -29,6 +29,8 @@ def callback(method, url):
     if method == "GET":
         if url == "/check_connect":
             return '{"status": "success"} \n'
+
+    if method == "POST":
         if url == "/init":
             try:
                 index_from = int(params["lif"])
@@ -54,10 +56,6 @@ def callback(method, url):
             print(states)
 
             return f'{{"status": "success", "id": {new_id}}} \n'
-
-    if method == "POST":
-        if url == "/placeholder":
-            return '{"status": "success"} \n'
 
     return '{"status": "forbidden"} \n'
 
