@@ -136,19 +136,21 @@ def get_state_and_assert_key_initialized(get_id):
                 data = json.load(f)
                 print("Loaded Data", data)
 
-                loaded_state = data[str(get_id)] # These functions always cast KEYS to str, hopefully consistent
-                print("Loaded State ", loaded_state)
+                # load all in order not to lose any
+                for key in data:
+                    loaded_state = data[key]
+                    print("Loaded State ", loaded_state)
 
-                states[get_id] = {}
-                states[get_id]["index_from"] = int(loaded_state["index_from"])
-                states[get_id]["index_to"] = int(loaded_state["index_to"])
-                states[get_id]["state"] = bool(loaded_state["state"])
-                states[get_id]["brightness"] = int(loaded_state["brightness"])
-                states[get_id]["red"] = int(loaded_state["red"])
-                states[get_id]["green"] = int(loaded_state["green"])
-                states[get_id]["blue"] = int(loaded_state["blue"])
+                    states[key] = {}
+                    states[key]["index_from"] = int(loaded_state["index_from"])
+                    states[key]["index_to"] = int(loaded_state["index_to"])
+                    states[key]["state"] = bool(loaded_state["state"])
+                    states[key]["brightness"] = int(loaded_state["brightness"])
+                    states[key]["red"] = int(loaded_state["red"])
+                    states[key]["green"] = int(loaded_state["green"])
+                    states[key]["blue"] = int(loaded_state["blue"])
 
-                print("State parsed from file:", states[get_id])
+                    print("State parsed from file:", states[get_id])
 
                 f.close()
         except Exception as ex:
