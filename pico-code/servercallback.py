@@ -69,7 +69,7 @@ def callback(method, url):
 
             updateLEDSTRIP() # write to strip
 
-            return f'{{"status": "success", "id": {new_id}}} \n'
+            return f'{{"status": "success", "id": "{new_id}"}} \n'
         if url == "/on":
             try:
                 use_id = str(params["id"])
