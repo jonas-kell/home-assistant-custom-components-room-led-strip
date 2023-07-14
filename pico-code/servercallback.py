@@ -16,6 +16,7 @@ states = {
     #     "blue": 0,
     # }
 }
+use_key_order = []
 
 ## INIT LIGHT STRIP
 LED_STRIP = getLEDStrip()
@@ -90,6 +91,8 @@ def callback(method, url):
             state["red"] = red
             state["green"] = green
             state["blue"] = blue
+
+            move_key_to_first(use_key_order)
             save_state()
 
             updateLEDSTRIP() # write to strip
@@ -107,6 +110,8 @@ def callback(method, url):
             # modify state and save
             state = get_state_and_assert_key_initialized(use_id)
             state["state"] = False
+
+            move_key_to_first(use_key_order)
             save_state()
 
             updateLEDSTRIP() # write to strip
@@ -169,7 +174,7 @@ def save_state():
         f.close()
 
 def updateLEDSTRIP():
-    for key in states:
+    for key in list(reversed(use_key_order)):
         state = states[key]
         print(f"Updating Strip {key}")
 
@@ -179,3 +184,11 @@ def updateLEDSTRIP():
         else:
             LED_STRIP.brightness(state["brightness"])
             LED_STRIP.set_pixel_line(min(LED_MAX_PIXEL, state["index_from"]), min(LED_MAX_PIXEL, state["index_to"]), (0,0,0)) # off
+
+        LED_STRIP.show()
+
+def move_key_to_first(key):
+    global use_key_order
+    if key in use_key_order:
+        use_key_order.remove(key)
+    use_key_order.insert(0, key)
