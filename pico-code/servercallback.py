@@ -73,6 +73,44 @@ def callback(method, url):
             print(states)
 
             return f'{{"status": "success", "id": {new_id}}} \n'
+        if url == "/on":
+            try:
+                use_id = int(params["id"])
+                brightness = int(params["brightness"])
+                red = int(params["red"])
+                green = int(params["green"])
+                blue = int(params["blue"])
+            except Exception as ex:
+                print(
+                    f"ERROR: Parsing arguments in /on due to exception {type(ex).__name__}, {str(ex.args)}"
+                )
+                return '{"status": "error"}'
+
+            # modify state and save
+            state = get_state_and_assert_key_initialized(use_id)
+            state["state"] = True
+            state["brightness"] = brightness
+            state["red"] = red
+            state["green"] = green
+            state["blue"] = blue
+            save_state()
+
+            return '{"status": "success"} \n'
+        if url == "/off":
+            try:
+                use_id = int(params["id"])
+            except Exception as ex:
+                print(
+                    f"ERROR: Parsing arguments in /off due to exception {type(ex).__name__}, {str(ex.args)}"
+                )
+                return '{"status": "error"}'
+            
+            # modify state and save
+            state = get_state_and_assert_key_initialized(use_id)
+            state["state"] = False
+            save_state()
+
+            return '{"status": "success"} \n'
 
     return '{"status": "forbidden"} \n'
 
