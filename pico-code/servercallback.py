@@ -139,7 +139,7 @@ def get_state_and_assert_key_initialized(get_id):
                 # load all in order not to lose any
                 for key in data:
                     loaded_state = data[key]
-                    print("Loaded State ", loaded_state)
+                    print("Loaded State json from file", loaded_state)
 
                     states[key] = {}
                     states[key]["index_from"] = int(loaded_state["index_from"])
@@ -150,9 +150,13 @@ def get_state_and_assert_key_initialized(get_id):
                     states[key]["green"] = int(loaded_state["green"])
                     states[key]["blue"] = int(loaded_state["blue"])
 
-                    print("State parsed from file:", states[get_id])
+                    print("State parsed from file:", states[key])
 
                 f.close()
+            
+            # after all things from the files have been loaded, see if they can be loaded now 
+            state = states[get_id]
+            
         except Exception as ex:
             print(f"Loading exception occured {type(ex).__name__}, {str(ex.args)}") # show exception without crashing
 
