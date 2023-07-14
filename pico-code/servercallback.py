@@ -126,8 +126,8 @@ def get_state_and_assert_key_initialized(get_id):
     except:
         print("state not present try loading from file:")
         # try to load from disk
-        with open("store_state.json", "r") as f:
-            try:
+        try:
+            with open("store_state.json", "r") as f:
                 data = json.load(f)
                 print("Loaded Data", data)
 
@@ -144,20 +144,21 @@ def get_state_and_assert_key_initialized(get_id):
                 states[get_id]["blue"] = int(loaded_state["blue"])
 
                 print("State parsed from file:", states[get_id])
-            except Exception as ex:
-                print(f"Loading exception occured {type(ex).__name__}, {str(ex.args)}") # show exception without crashing
 
-                states[get_id] = {  # DEFAULT, should not be needed
-                    "index_from": 0,  # bad because not known, should be overwritten
-                    "index_to": 10,  # bad because not known, should be overwritten
-                    "state": False,
-                    "brightness": 0,
-                    "red": 0,
-                    "green": 0,
-                    "blue": 0,
-                }
+                f.close()
+        except Exception as ex:
+            print(f"Loading exception occured {type(ex).__name__}, {str(ex.args)}") # show exception without crashing
 
-            f.close()
+            states[get_id] = {  # DEFAULT, should not be needed
+                "index_from": 0,  # bad because not known, should be overwritten
+                "index_to": 10,  # bad because not known, should be overwritten
+                "state": False,
+                "brightness": 0,
+                "red": 0,
+                "green": 0,
+                "blue": 0,
+            }
+            
 
     return states[get_id]
 
