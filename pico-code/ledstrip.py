@@ -19,3 +19,6 @@ LED_STRIP = Neopixel(
 def getLEDStrip():
     global LED_STRIP
     return LED_STRIP
+
+def getMaxPixel():
+    return numpix - 1

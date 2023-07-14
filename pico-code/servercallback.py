@@ -1,4 +1,4 @@
-from ledstrip import getLEDStrip
+from ledstrip import getLEDStrip, getMaxPixel
 from led import blink
 from server import parseUrl
 import json
@@ -18,8 +18,8 @@ states = {
 }
 
 ## INIT LIGHT STRIP
-" //TODO"
-
+LED_STRIP = getLEDStrip()
+LED_MAX_PIXEL = getMaxPixel()
 
 def callback(method, url):
     global states
@@ -72,6 +72,8 @@ def callback(method, url):
             save_state()
             print(states)
 
+            updateLEDSTRIP() # write to strip
+
             return f'{{"status": "success", "id": {new_id}}} \n'
         if url == "/on":
             try:
@@ -95,6 +97,8 @@ def callback(method, url):
             state["blue"] = blue
             save_state()
 
+            updateLEDSTRIP() # write to strip
+
             return '{"status": "success"} \n'
         if url == "/off":
             try:
@@ -109,6 +113,8 @@ def callback(method, url):
             state = get_state_and_assert_key_initialized(use_id)
             state["state"] = False
             save_state()
+
+            updateLEDSTRIP() # write to strip
 
             return '{"status": "success"} \n'
 
@@ -165,3 +171,13 @@ def save_state():
     with open("store_state.json", "w") as f:
         json.dump(states, f)
         f.close()
+
+def updateLEDSTRIP():
+    for key in states:
+        state = states[key]
+
+        if state["state"]:
+            LED_STRIP.brightness(state["brightness"])
+            LED_STRIP.set_pixel_line(min(LED_MAX_PIXEL, state["index_from"]), min(LED_MAX_PIXEL, state["index_to"]), (state["red"], state["green"], state["blue"])) # on
+        else:
+            LED_STRIP.set_pixel_line(min(LED_MAX_PIXEL, state["index_from"]), min(LED_MAX_PIXEL, state["index_to"]), (0,0,0)) # off
