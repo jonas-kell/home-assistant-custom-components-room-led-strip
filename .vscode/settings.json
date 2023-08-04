@@ -6,5 +6,6 @@
     "python.analysis.extraPaths": [".vscode/Pico-W-Stub/stubs"],
     "cSpell.words": ["Micropython", "Pico"],
     "micropico.syncFolder": "pico-code",
-    "micropico.syncFileTypes": ["py", "txt", "log", "json", "xml", "html", "js", "css", "mpy", "env"]
+    "micropico.syncFileTypes": ["py", "txt", "log", "json", "xml", "html", "js", "css", "mpy", "env"],
+    "micropico.openOnStart": true
 }
