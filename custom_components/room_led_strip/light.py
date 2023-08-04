@@ -55,11 +55,11 @@ def setup_platform(
     # The configuration check takes care they are present.
 
     devices = []
-    for device_id, config in config[CONF_DEVICES].items():
-        name = config.pop(CONF_NAME)
-        ip_address = config.pop(CONF_IP_ADDRESS)
-        light_index_from = config.pop(CONF_LIGHT_INDEX_FROM)
-        light_index_to = config.pop(CONF_LIGHT_INDEX_TO)
+    for device_id, device_config in config[CONF_DEVICES].items():
+        name = device_config[CONF_NAME]
+        ip_address = device_config[CONF_IP_ADDRESS]
+        light_index_from = device_config[CONF_LIGHT_INDEX_FROM]
+        light_index_to = device_config[CONF_LIGHT_INDEX_TO]
 
         pico = RaspberryPiPico(
             device_id, name, ip_address, light_index_from, light_index_to
