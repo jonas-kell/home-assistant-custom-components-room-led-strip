@@ -14,7 +14,7 @@ from homeassistant.components.light import (
 )
 from homeassistant.const import CONF_IP_ADDRESS, CONF_NAME, CONF_DEVICES
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback, PlatformNotReady
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 import requests
@@ -67,10 +67,7 @@ def setup_platform(
 
         # Verify that passed in configuration works
         if not pico.assert_can_connect():
-            _LOGGER.error(
-                f"Could not connect to RaspberryPi Pico with custom firmware (ip: {ip_address})"
-            )
-            continue
+            raise PlatformNotReady(f"Could not connect to RaspberryPi Pico with custom firmware (ip: {ip_address})")
         if not pico.init_remote_state_track():
             _LOGGER.error(
                 f"Could not create LED subsection (ip: {ip_address}, light_index_from: {light_index_from}, light_index_to: {light_index_to})"
@@ -101,7 +98,7 @@ class RaspberryPiPico:
         self._light_index_to = light_index_to
 
     def assert_can_connect(self) -> bool:
-        ok, response = self.request("check_connect", {}, "get")
+        ok, response = self.request("check_connect", {}, "get", False)
 
         if ok:
             _LOGGER.info(f"Asserted that Pico can connect")
@@ -203,7 +200,7 @@ class RaspberryPiPico:
 
         return False
 
-    def request(self, route, params={}, method="get"):
+    def request(self, route, params={}, method="get", log_connection_error=True):
         try:
             if method == "get":
                 r = requests.get(
@@ -218,9 +215,10 @@ class RaspberryPiPico:
             else:
                 raise ValueError
         except Exception as ex:
-            _LOGGER.error(
-                f"Could not connect to RaspberryPi Pico with custom firmware on ip {self._ip_address} due to exception {type(ex).__name__}, {str(ex.args)}"
-            )
+            if log_connection_error:
+                _LOGGER.error(
+                    f"Could not connect to RaspberryPi Pico with custom firmware on ip {self._ip_address} due to exception {type(ex).__name__}, {str(ex.args)}"
+                )
             return False, {}
 
         if r.status_code != 200:
