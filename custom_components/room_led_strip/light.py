@@ -55,19 +55,21 @@ def setup_platform(
     # The configuration check takes care they are present.
 
     devices = []
-    for device_id, device_config in config[CONF_DEVICES].items():
+    for unique_id, device_config in config[CONF_DEVICES].items():
         name = device_config[CONF_NAME]
         ip_address = device_config[CONF_IP_ADDRESS]
         light_index_from = device_config[CONF_LIGHT_INDEX_FROM]
         light_index_to = device_config[CONF_LIGHT_INDEX_TO]
 
         pico = RaspberryPiPico(
-            device_id, name, ip_address, light_index_from, light_index_to
+            unique_id, name, ip_address, light_index_from, light_index_to
         )
 
         # Verify that passed in configuration works
         if not pico.assert_can_connect():
-            raise PlatformNotReady(f"Could not connect to RaspberryPi Pico with custom firmware (ip: {ip_address})")
+            raise PlatformNotReady(
+                f"Could not connect to RaspberryPi Pico with custom firmware (ip: {ip_address})"
+            )
         if not pico.init_remote_state_track():
             _LOGGER.error(
                 f"Could not create LED subsection (ip: {ip_address}, light_index_from: {light_index_from}, light_index_to: {light_index_to})"
@@ -89,9 +91,9 @@ class RaspberryPiPico:
     """Controls Connection to a RaspberriPi Pico with custom firmware"""
 
     def __init__(
-        self, device_id, name, ip_address, light_index_from, light_index_to
+        self, unique_id, name, ip_address, light_index_from, light_index_to
     ) -> None:
-        self._device_id = device_id
+        self._unique_id = unique_id
         self._name = name
         self._ip_address = ip_address
         self._light_index_from = light_index_from
@@ -256,7 +258,7 @@ class RoomLEDStrip(LightEntity):
     def __init__(self, pico: RaspberryPiPico) -> None:
         """Initialize a Lightable Pico Subsection"""
         self._pico = pico
-        self._device_id = pico._device_id
+        self._attr_unique_id = pico._unique_id
         self._name = pico._name
         self._state = None
         self._brightness = None
