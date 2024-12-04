@@ -1,4 +1,5 @@
 """Platform for light integration."""
+
 from __future__ import annotations
 
 import logging
@@ -287,8 +288,8 @@ class RoomLEDStrip(LightEntity):
     def turn_on(self, **kwargs: Any) -> None:
         """Instruct the light to turn on."""
         self._pico.turn_on(
-            kwargs.get(ATTR_BRIGHTNESS, 255),
-            kwargs.get(ATTR_RGB_COLOR, [255, 255, 255]),
+            kwargs.get(ATTR_BRIGHTNESS, self._brightness or 255),
+            kwargs.get(ATTR_RGB_COLOR, self._rgb_color or [255, 255, 255]),
         )
 
     def turn_off(self, **kwargs: Any) -> None:
