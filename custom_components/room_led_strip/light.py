@@ -20,7 +20,50 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 import requests
 
-_LOGGER = logging.getLogger(__name__)
+
+class DedupLogger:
+    """Logger wrapper that ensures each message is only logged once."""
+
+    def __init__(self, logger: logging.Logger, dedup: bool) -> None:
+        self._logger = logger
+        self._seen_messages: set[str] = set()
+        self._warned_messages: set[str] = set()
+        self._dedup: bool = dedup
+
+        if self._dedup:
+            getattr(self._logger, "debug")("Only logging success messages once")
+
+    def _log_once(self, level: str, msg: str) -> None:
+        if self._dedup and level != "error":
+
+            if msg in self._seen_messages:
+                if msg not in self._warned_messages:
+                    getattr(self._logger, level)(
+                        f"Omitting message from now due to repeat: {msg}"
+                    )
+                    self._warned_messages.add(msg)
+
+                return
+
+            self._seen_messages.add(msg)
+
+        getattr(self._logger, level)(msg)
+
+    def info(self, msg: str) -> None:
+        self._log_once("info", msg)
+
+    def warning(self, msg: str) -> None:
+        self._log_once("warning", msg)
+
+    def error(self, msg: str) -> None:
+        self._log_once("error", msg)
+
+    def debug(self, msg: str) -> None:
+        self._log_once("debug", msg)
+
+
+_BASE_LOGGER = logging.getLogger(__name__)
+_LOGGER = DedupLogger(_BASE_LOGGER, True)
 
 CONF_LIGHT_INDEX_FROM: Final = "light_index_from"
 CONF_LIGHT_INDEX_TO: Final = "light_index_to"
@@ -101,10 +144,10 @@ class RaspberryPiPico:
         self._light_index_to = light_index_to
 
     def assert_can_connect(self) -> bool:
-        ok, response = self.request("check_connect", {}, "get", False)
+        ok, _response = self.request("check_connect", {}, "get", False)
 
         if ok:
-            _LOGGER.info(f"Asserted that Pico can connect")
+            _LOGGER.info("Asserted that Pico can connect")
             return True
 
         return False
@@ -117,7 +160,7 @@ class RaspberryPiPico:
         )
 
         if not ok:
-            _LOGGER.error(f"No remote state track could be set up")
+            _LOGGER.error("No remote state track could be set up")
             return False
 
         try:
@@ -185,20 +228,20 @@ class RaspberryPiPico:
         )
 
         if ok:
-            _LOGGER.info(f"Light turned on/updated")
+            _LOGGER.info("Light turned on/updated")
             return True
 
         return False
 
     def turn_off(self):
-        ok, response = self.request(
+        ok, _response = self.request(
             "off",
             {},
             "post",
         )
 
         if ok:
-            _LOGGER.info(f"Light turned on/updated")
+            _LOGGER.info("Light turned on/updated")
             return True
 
         return False
@@ -209,11 +252,13 @@ class RaspberryPiPico:
                 r = requests.get(
                     url=f"http://{self._ip_address}/{route}",
                     params=(params | {"id": self.getID()}),
+                    timeout=10,
                 )
             elif method == "post":
                 r = requests.post(
                     url=f"http://{self._ip_address}/{route}",
                     params=(params | {"id": self.getID()}),
+                    timeout=10,
                 )
             else:
                 raise ValueError
